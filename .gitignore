@@ -1,0 +1,43 @@
+# Raw data — never commit patient-level files
+data/
+*.csv
+*.parquet
+*.feather
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Any patient-level outputs — belt-and-suspenders
+outputs/raw/
+outputs/**/*patient*.csv
+outputs/**/*row*.csv
+outputs/**/*record*.csv
+
+# Secrets / env
+.env
+*.env
+.Rhistory
