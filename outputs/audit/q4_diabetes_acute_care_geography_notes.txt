@@ -1,0 +1,64 @@
+Q4 Diabetes Acute-Care Geography — Analysis Notes
+==============================================================
+
+This map is diabetes-specific. It describes the geographic distribution
+of acute-care involvement among patients with clean diabetes diagnosis journeys.
+
+Metric definition
+  pct_diabetes_acute_care_involved =
+    (diabetes clean journeys with hospital_involved_journey == True)
+    / (total diabetes clean journeys) * 100
+
+  This is a journey-level metric, NOT a patient-level raw encounter share.
+  Acute-care involvement = hospital_involved_journey == True.
+  hospital_involved_journey is a combined signal: a journey is flagged True
+  when it contains at least one hospital admission, ED visit, OR observation
+  stay. It is NOT limited to pure hospital admissions.
+
+Diabetes journey definition
+  A clean diagnosis-anchored journey (PatientDurableKey + DiagnosisValue)
+  is classified as a diabetes journey when:
+    - GroupName contains 'diabet' (case-insensitive), OR
+    - DiagnosisValue starts with 'E10' or 'E11'
+  Both signals are applied as a union (OR). The GroupName signal is a
+  superset of E10/E11 codes; it also captures gestational diabetes (O24.x),
+  other specified diabetes (E13.x), and secondary diabetes (E08.x, E09.x).
+
+Diagnosis filter counts
+  Diabetes journeys (E10/E11 DiagnosisValue):      34,383
+  Diabetes journeys (GroupName 'diabet'):           36,767
+  Diabetes journeys (union):                        36,767
+  Diabetes journeys with acute-care involvement:     3,260
+
+Geography
+  Diabetes journeys with valid geo ID:      26,366
+  Matching tiger census GEOID:              26,312
+  Census blocks before sample filter:          607
+  Census blocks after n>=30 filter:            258
+  Census blocks plotted (after coordinate join):   257
+  Note: the plotted count may be lower than the preflight 'after n>=30' count
+  because the final inner join to tiger requires a matching GEOID with valid
+  CENTLAT/CENTLON coordinates. Block groups with no matching tiger row are
+  excluded from the map but are still counted in the preflight.
+
+  Geography = CensusBlockGroupFipsCode joined to GEOID in tigercensuscodes.csv.
+  Invalid geo values excluded: *Unspecified, Unknown, NA, blank, nan, None.
+  Minimum diabetes journeys per block group: 30
+
+Metric distribution (plotted block groups)
+  25th pct:  3.9%
+  Median:    6.6%
+  75th pct:  10.5%
+
+Map visual encoding
+  Bubble size  = n_diabetes_journeys (clipped to scatter size 15–350)
+  Bubble color = pct_diabetes_acute_care_involved (RdYlGn_r palette)
+  Contour fill = light linear griddata interpolation (alpha 0.30)
+  Contour lines are exploratory visual guides only.
+  The bubble-level aggregate table is the authoritative source of truth.
+
+Interpretation caution
+  Results are descriptive. Geographic patterns are observational and may
+  reflect population age structure, comorbidity burden, proximity to
+  acute-care facilities, insurance coverage, or other unmeasured factors.
+  Language throughout uses 'associated with', not 'causes' or 'leads to'.
