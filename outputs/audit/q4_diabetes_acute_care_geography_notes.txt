@@ -12,8 +12,8 @@ Metric definition
   This is a journey-level metric, NOT a patient-level raw encounter share.
   Acute-care involvement = hospital_involved_journey == True.
   hospital_involved_journey is a combined signal: a journey is flagged True
-  when it contains at least one hospital admission, ED visit, OR observation
-  stay. It is NOT limited to pure hospital admissions.
+  when it contains at least one ED visit, hospital admission, inpatient
+  admission, or observation stay. It is NOT limited to pure hospital admissions.
 
 Diabetes journey definition
   A clean diagnosis-anchored journey (PatientDurableKey + DiagnosisValue)

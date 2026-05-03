@@ -318,6 +318,11 @@ def plot_diabetes_map(
     vals   = geo_plot[metric_col].values
     grid_z = griddata(pts, vals, (grid_x, grid_y), method="linear")
 
+    # Clip contour array to 0–20 so the background color wash matches the
+    # scatter colorbar.  True metric values in the CSV are unchanged.
+    grid_z_for_plot = np.clip(grid_z, 0, 20)
+    contour_levels  = np.linspace(0, 20, 6)
+
     fig, ax = plt.subplots(figsize=(12, 8), facecolor=BG)
     ax.set_facecolor("#D6EAF8")
 
@@ -332,10 +337,11 @@ def plot_diabetes_map(
         add_geojson_layer(ax, ks_state_feats,
                           facecolor="none",    edgecolor="#444444", linewidth=1.5)
 
-    # Linear contour fill + grey contour lines
-    ax.contourf(grid_x, grid_y, grid_z, levels=8,
-                cmap="RdYlGn_r", alpha=0.30, zorder=2)
-    cs = ax.contour(grid_x, grid_y, grid_z, levels=8,
+    # Linear contour fill + grey contour lines — both use the clipped 0–20 grid
+    # so the background color wash is anchored to the same scale as the scatter.
+    ax.contourf(grid_x, grid_y, grid_z_for_plot, levels=contour_levels,
+                cmap="RdYlGn_r", alpha=0.30, vmin=0, vmax=20, zorder=2)
+    cs = ax.contour(grid_x, grid_y, grid_z_for_plot, levels=contour_levels,
                     colors="dimgrey", linewidths=0.6, alpha=0.7, zorder=3)
     ax.clabel(cs, fmt="%.1f", fontsize=6.5, inline=True, inline_spacing=4)
 
@@ -442,8 +448,8 @@ def write_notes(pf: dict, geo_plot: pd.DataFrame) -> None:
         "  This is a journey-level metric, NOT a patient-level raw encounter share.",
         "  Acute-care involvement = hospital_involved_journey == True.",
         "  hospital_involved_journey is a combined signal: a journey is flagged True",
-        "  when it contains at least one hospital admission, ED visit, OR observation",
-        "  stay. It is NOT limited to pure hospital admissions.",
+        "  when it contains at least one ED visit, hospital admission, inpatient",
+        "  admission, or observation stay. It is NOT limited to pure hospital admissions.",
         "",
         "Diabetes journey definition",
         "  A clean diagnosis-anchored journey (PatientDurableKey + DiagnosisValue)",
