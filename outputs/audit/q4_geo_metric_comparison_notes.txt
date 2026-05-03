@@ -1,0 +1,52 @@
+Q4 Geographic Metric Comparison — Analysis Notes
+==============================================================
+
+Three geographic bubble maps compare healthcare utilization patterns
+across census block groups in the Stormont Vail Health service area.
+
+Metric 1 — Mean Patient Hospital Admission Share (Q4a)
+  Source: encounters.csv (PatientDurableKey, IsHospitalAdmission),
+          patients.csv (CensusBlockGroupFipsCode)
+  Definition: For each patient, compute the proportion of their encounters
+  that are hospital admissions. Average across patients within each census
+  block group. This mirrors a teammate's analysis approach.
+  Patients with valid geo IDs: 336,514
+
+Metric 2 — Journey Acute-Care Involvement Rate (Q4b)
+  Source: journeys_with_core_sdoh_need_flags.parquet
+          Column: hospital_involved_journey
+  Definition: Proportion of clean diagnosis-anchored journeys per census
+  block group where the journey includes at least one hospital admission,
+  ED visit, or observation stay (hospital_involved_journey == True).
+
+Metric 3 — ED-Indexed Journey Share (Q4c)
+  Source: journeys_with_core_sdoh_need_flags.parquet
+          Column: has_ed
+  Definition: Proportion of clean journeys per census block group that
+  include at least one ED visit (has_ed == True).
+
+Common filters applied to all three metrics:
+  - Minimum 30 patients per census block group (suppresses sparse cells)
+  - Geo IDs must match tiger census codes (requires valid lat/lon)
+  - Excluded geo values: *Unspecified, Unknown, NA, blank, nan, None
+
+Geographic coverage summary:
+  - Total journeys in parquet:          2,608,676
+  - Journeys with valid geo ID:         1,846,370
+  - Journeys matching tiger GEOID:      1,843,672
+  - Tiger rows with valid coordinates:  2,461
+  - Unique geo IDs in tiger:            2,461
+  - Unique geo IDs in parquet journeys: 1,269
+  - Unique geo IDs in patients file:    1,320
+
+Visual encoding:
+  - Bubble size = sqrt(n_patients) to avoid visual dominance of large groups.
+  - Color scale spans 5th to 95th percentile per map to reduce outlier influence.
+  - Map background is a plain coordinate rectangle (geopandas not installed).
+  - Service area bounds: lon -101.9 to -94.6, lat 37.0 to 40.0 (Kansas).
+
+Interpretation caution:
+  Geographic patterns are descriptive and observational. Associations between
+  block group location and utilization may reflect population demographics,
+  proximity to facilities, insurance coverage, or other unmeasured factors.
+  Language throughout uses 'associated with' and 'observed among', not 'causes'.
